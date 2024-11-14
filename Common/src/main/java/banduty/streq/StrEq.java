@@ -30,7 +30,11 @@ public class StrEq {
 	 * }
 	 * </pre>
 	 *
-	 * Compatible with Numbers (1, 2, 3, 4,...), Operators (+ - * /), Parenthesis (), Variable (x, y, ...)
+	 * Compatible with:
+	 * - Numbers (1, 2, 3, 4,... To put negative numbers, you need to put 0 - number)
+	 * - Operators (+ - * /)
+	 * - Parenthesis ()
+	 * - Variable (x, y,... Accepts negative numbers)
 	 * <p>
 	 * Take in care that if you put 2x instead of 2*x won't work as expected.
 	 */
