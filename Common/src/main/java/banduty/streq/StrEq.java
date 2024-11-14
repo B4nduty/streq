@@ -6,7 +6,6 @@ import java.util.Map;
 
 public class StrEq {
 	/**
-	 * Demonstrates how to use the {@link StrEq#evaluate} method.
 	 * <p>
 	 * </p>
 	 *
@@ -38,9 +37,6 @@ public class StrEq {
 	 * <p>
 	 * Take in care that if you put 2x instead of 2*x won't work as expected.
 	 */
-	public void onInitialize() {
-	}
-
 	public static double evaluate(String expression, Map<String, Double> variables, boolean allowNeg) {
 		List<Tokenizer.Token> tokens = Tokenizer.tokenize(expression);
 		List<Tokenizer.Token> postfix = ExpressionEvaluator.toPostfix(tokens, variables);
