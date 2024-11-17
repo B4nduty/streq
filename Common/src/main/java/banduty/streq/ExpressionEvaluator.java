@@ -1,48 +1,59 @@
 package banduty.streq;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-class ExpressionEvaluator {
+final class ExpressionEvaluator {
+
+    private ExpressionEvaluator() {}
+
+    private static final Map<String, Integer> PRECEDENCE = Map.of(
+            "+", 1,
+            "-", 1,
+            "*", 2,
+            "/", 2,
+            "^", 3
+    );
+
     static List<Tokenizer.Token> toPostfix(List<Tokenizer.Token> tokens, Map<String, Double> variables) {
         List<Tokenizer.Token> output = new ArrayList<>();
-        Stack<Tokenizer.Token> operators = new Stack<>();
-
-        Map<String, Integer> precedence = new HashMap<>();
-        precedence.put("+", 1);
-        precedence.put("-", 1);
-        precedence.put("*", 2);
-        precedence.put("/", 2);
+        Deque<Tokenizer.Token> operators = new ArrayDeque<>();
+        variables.putIfAbsent("pi", Math.PI);
 
         for (Tokenizer.Token token : tokens) {
             switch (token.type()) {
-                case NUMBER:
-                    output.add(token);
-                    break;
-                case VARIABLE:
+                case NUMBER -> output.add(token);
+                case VARIABLE -> {
                     String variableName = token.value();
                     Double value = variables.get(variableName);
                     if (value == null) {
                         throw new IllegalArgumentException("Unrecognized variable: " + variableName);
                     }
                     output.add(new Tokenizer.Token(Tokenizer.TokenType.NUMBER, String.valueOf(value)));
-                    break;
-                case OPERATOR:
-                    while (!operators.isEmpty() && operators.peek().type() == Tokenizer.TokenType.OPERATOR &&
-                            precedence.get(token.value()) <= precedence.get(operators.peek().value())) {
+                }
+                case FUNCTION -> operators.push(token);
+                case OPERATOR -> {
+                    while (!operators.isEmpty() &&
+                            operators.peek().type() == Tokenizer.TokenType.OPERATOR &&
+                            PRECEDENCE.get(token.value()) <= PRECEDENCE.get(operators.peek().value())) {
                         output.add(operators.pop());
                     }
                     operators.push(token);
-                    break;
-                case PARENTHESIS:
+                }
+                case PARENTHESIS -> {
                     if (token.value().equals("(")) {
                         operators.push(token);
-                    } else if (token.value().equals(")")) {
+                    } else {
                         while (!operators.isEmpty() && !operators.peek().value().equals("(")) {
                             output.add(operators.pop());
                         }
-                        operators.pop();
+                        if (!operators.isEmpty()) operators.pop();
+                        if (!operators.isEmpty() && operators.peek().type() == Tokenizer.TokenType.FUNCTION) {
+                            output.add(operators.pop());
+                        }
                     }
-                    break;
+                }
             }
         }
 
@@ -50,34 +61,40 @@ class ExpressionEvaluator {
             output.add(operators.pop());
         }
 
-        return output;
+        return Collections.unmodifiableList(output);
     }
 
     static double evaluatePostfix(List<Tokenizer.Token> postfix) {
         Deque<Double> stack = new ArrayDeque<>();
 
-        for (Tokenizer.Token token : postfix) {
-            if (token.type() == Tokenizer.TokenType.NUMBER) {
-                stack.push(Double.parseDouble(token.value()));
-            } else if (token.type() == Tokenizer.TokenType.OPERATOR) {
-                double b = stack.pop();
-                double a = stack.pop();
+        Map<String, BiFunction<Double, Double, Double>> operatorFunctions = Map.of(
+                "+", Double::sum,
+                "-", (a, b) -> a - b,
+                "*", (a, b) -> a * b,
+                "/", (a, b) -> a / b,
+                "^", Math::pow
+        );
 
-                switch (token.value()) {
-                    case "+":
-                        stack.push(a + b);
-                        break;
-                    case "-":
-                        stack.push(a - b);
-                        break;
-                    case "*":
-                        stack.push(a * b);
-                        break;
-                    case "/":
-                        stack.push(a / b);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown operator: " + token.value());
+        Map<String, Function<Double, Double>> functionOperations = Map.of(
+                "sin", Math::sin,
+                "cos", Math::cos,
+                "tan", Math::tan,
+                "arcsin", Math::asin,
+                "arccos", Math::acos,
+                "sqrt", Math::sqrt
+        );
+
+        for (Tokenizer.Token token : postfix) {
+            switch (token.type()) {
+                case NUMBER -> stack.push(Double.parseDouble(token.value()));
+                case OPERATOR -> {
+                    double b = stack.pop();
+                    double a = stack.pop();
+                    stack.push(operatorFunctions.get(token.value()).apply(a, b));
+                }
+                case FUNCTION -> {
+                    double a = stack.pop();
+                    stack.push(functionOperations.get(token.value()).apply(a));
                 }
             }
         }
