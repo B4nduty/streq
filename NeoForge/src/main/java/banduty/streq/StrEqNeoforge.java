@@ -5,9 +5,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 
-@Mod(StrEqNeoforge.MOD_ID)
+@Mod(StrEq.MOD_ID)
 public class StrEqNeoforge {
-	public static final String MOD_ID = "streq";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public StrEqNeoforge(IEventBus modEventBus) {

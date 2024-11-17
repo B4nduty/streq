@@ -1,0 +1,10 @@
+plugins {
+	id 'idea'
+	id 'java'
+}
+base {
+	archivesName = "${mod_name}-${mod_version}"
+}
+
+dependencies {
+}

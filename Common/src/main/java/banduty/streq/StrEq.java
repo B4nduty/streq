@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StrEq {
+	public static final String MOD_ID = "streq";
+
 	/**
 	 * <p>
 	 * </p>
@@ -13,7 +15,7 @@ public class StrEq {
 	 * {@code
 	 * public double yourMethod() {
 	 *     // Define the formula to evaluate
-	 *     String formula = "2*x-3*y";
+	 *     String formula = "2x-(-3y)";
 	 *
 	 *     // Map containing variable names and their corresponding values
 	 *     Map<String, Double> variables = new HashMap<>();
@@ -30,12 +32,11 @@ public class StrEq {
 	 * </pre>
 	 *
 	 * Compatible with:
-	 * - Numbers (1, 2, 3, 4,... To put negative numbers, you need to put 0 - number)
+	 * - Numbers (1, 2, 3, 4,...)
 	 * - Operators (+ - * /)
 	 * - Parenthesis ()
-	 * - Variable (x, y,... Accepts negative numbers)
+	 * - Variable (x, y,...)
 	 * <p>
-	 * Take in care that if you put 2x instead of 2*x won't work as expected.
 	 */
 	public static double evaluate(String expression, Map<String, Double> variables, boolean allowNeg) {
 		List<Tokenizer.Token> tokens = Tokenizer.tokenize(expression);
