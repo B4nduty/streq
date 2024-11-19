@@ -7,14 +7,16 @@ import java.util.Set;
 
 final class Tokenizer {
     enum TokenType {
-        NUMBER, OPERATOR, PARENTHESIS, VARIABLE, FUNCTION
+        NUMBER, OPERATOR, PARENTHESIS, VARIABLE, FUNCTION, COMMA
     }
 
     record Token(TokenType type, String value) {}
 
     private Tokenizer() {}
 
-    private static final Set<String> FUNCTIONS = Set.of("sin", "cos", "tan", "arcsin", "arccos", "arctan", "sqrt");
+    private static final Set<String> FUNCTIONS = Set.of(
+            "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sqrt", "log", "ln", "logb"
+    );
 
     static List<Token> tokenize(String expression) {
         List<Token> tokens = new ArrayList<>();
@@ -66,6 +68,9 @@ final class Tokenizer {
                     expectingNegativeNumber = true;
                 } else if (currentChar == ')') {
                     tokens.add(new Token(TokenType.PARENTHESIS, String.valueOf(currentChar)));
+                    expectingNegativeNumber = false;
+                } else if (currentChar == ',') {
+                    tokens.add(new Token(TokenType.COMMA, ","));
                     expectingNegativeNumber = false;
                 } else if (!Character.isWhitespace(currentChar)) {
                     throw new IllegalArgumentException("Unrecognized character in expression: " + currentChar);

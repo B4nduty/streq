@@ -6,7 +6,7 @@ logoFile="StrEq.png"
 
 [[mods]]
 modId="streq"
-version="1.0.2"
+version="1.0.3"
 displayName="StrEq"
 displayURL=""
 authors="Banduty"
