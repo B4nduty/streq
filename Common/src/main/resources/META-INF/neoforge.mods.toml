@@ -2,11 +2,11 @@ modLoader="javafml"
 loaderVersion="*"
 license="All rights reserved"
 issueTrackerURL="https://discord.gg/vbZ2zTHGNA"
-logoFile="StrEq.png"
+logoFile=""
 
 [[mods]]
 modId="streq"
-version="1.0.3"
+version="1.0.4"
 displayName="StrEq"
 displayURL=""
 authors="Banduty"

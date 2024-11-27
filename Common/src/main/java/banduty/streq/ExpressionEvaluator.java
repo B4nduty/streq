@@ -2,34 +2,47 @@ package banduty.streq;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 final class ExpressionEvaluator {
 
     private ExpressionEvaluator() {}
 
     private static final Map<String, Integer> PRECEDENCE = Map.of(
-            "+", 1,
-            "-", 1,
-            "*", 2,
-            "/", 2,
-            "^", 3
+            "+", 1, "-", 1, "*", 2, "/", 2, "^", 3, "!", 4
+    );
+
+    private static final Map<String, Double> CONSTANTS = Map.of(
+            "pi", Math.PI, "e", Math.E, "phi", (1 + Math.sqrt(5)) / 2
+    );
+
+    private static final Map<String, BiFunction<Double, Double, Double>> OPERATOR_FUNCTIONS = Map.of(
+            "+", Double::sum, "-", (a, b) -> a - b, "*", (a, b) -> a * b, "/", (a, b) -> a / b, "^", Math::pow
+    );
+
+    private static final Map<String, Function<Double, Double>> FUNCTION_OPERATIONS = Map.of(
+            "sin", Math::sin, "cos", Math::cos, "tan", Math::tan,
+            "arcsin", Math::asin, "arccos", Math::acos, "arctan", Math::atan,
+            "sqrt", Math::sqrt, "log", Math::log10, "ln", Math::log, "abs", Math::abs
+    );
+
+    private static final Map<String, BiFunction<Double, Double, Double>> COMMA_FUNCTION_OPERATIONS = Map.of(
+            "logb", ExpressionEvaluator::logBase, "gcd", ExpressionEvaluator::gcd, "lcm", ExpressionEvaluator::lcm
     );
 
     static List<Tokenizer.Token> toPostfix(List<Tokenizer.Token> tokens, Map<String, Double> variables) {
-        List<Tokenizer.Token> output = new ArrayList<>();
-        Deque<Tokenizer.Token> operators = new ArrayDeque<>();
-        variables.put("pi", Math.PI);
-        variables.put("e", Math.E);
-        variables.put("phi", (1 + Math.sqrt(5)) / 2);
+        List<Tokenizer.Token> output = new ArrayList<>(tokens.size());
+        Deque<Tokenizer.Token> operators = new ArrayDeque<>(tokens.size());
+
+        variables.putAll(CONSTANTS);
 
         for (Tokenizer.Token token : tokens) {
             switch (token.type()) {
                 case NUMBER -> output.add(token);
                 case VARIABLE -> {
-                    String variableName = token.value();
-                    Double value = variables.get(variableName);
+                    Double value = variables.get(token.value());
                     if (value == null) {
-                        throw new IllegalArgumentException("Unrecognized variable: " + variableName);
+                        throw new IllegalArgumentException("Unrecognized variable: " + token.value());
                     }
                     output.add(new Tokenizer.Token(Tokenizer.TokenType.NUMBER, String.valueOf(value)));
                 }
@@ -43,20 +56,20 @@ final class ExpressionEvaluator {
                     operators.push(token);
                 }
                 case PARENTHESIS -> {
-                    if (token.value().equals("(")) {
+                    if ("(".equals(token.value())) {
                         operators.push(token);
                     } else {
-                        while (!operators.isEmpty() && !operators.peek().value().equals("(")) {
+                        while (!operators.isEmpty() && !"(".equals(operators.peek().value())) {
                             output.add(operators.pop());
                         }
-                        if (!operators.isEmpty()) operators.pop();
+                        operators.pop(); // Remove '('
                         if (!operators.isEmpty() && operators.peek().type() == Tokenizer.TokenType.FUNCTION) {
-                            output.add(operators.pop());
+                            output.add(operators.pop()); // Pop function
                         }
                     }
                 }
                 case COMMA -> {
-                    while (!operators.isEmpty() && !operators.peek().value().equals("(")) {
+                    while (!operators.isEmpty() && !"(".equals(operators.peek().value())) {
                         output.add(operators.pop());
                     }
                 }
@@ -67,77 +80,61 @@ final class ExpressionEvaluator {
             output.add(operators.pop());
         }
 
-        return Collections.unmodifiableList(output);
+        return output;
     }
 
     static double evaluatePostfix(List<Tokenizer.Token> postfix) {
-        Deque<Double> stack = new ArrayDeque<>();
-
-        Map<String, BiFunction<Double, Double, Double>> operatorFunctions = Map.of(
-                "+", Double::sum,
-                "-", (a, b) -> a - b,
-                "*", (a, b) -> a * b,
-                "/", (a, b) -> a / b,
-                "^", Math::pow
-        );
-
-        Map<String, BiFunction<Double, Double, Double>> functionOperations = Map.of(
-                "sin", (a, b) -> Math.sin(a),
-                "cos", (a, b) -> Math.cos(a),
-                "tan", (a, b) -> Math.tan(a),
-                "arcsin", (a, b) -> Math.asin(a),
-                "arccos", (a, b) -> Math.acos(a),
-                "arctan", (a, b) -> Math.atan(a),
-                "sqrt", (a, b) -> Math.sqrt(a),
-                "log", (a, b) -> Math.log10(a),
-                "ln", (a, b) -> Math.log(a),
-                "logb", ExpressionEvaluator::logBase
-        );
+        Deque<Double> stack = new ArrayDeque<>(postfix.size());
 
         for (Tokenizer.Token token : postfix) {
             switch (token.type()) {
                 case NUMBER -> stack.push(Double.parseDouble(token.value()));
                 case OPERATOR -> {
-                    if (stack.size() < 2) {
-                        throw new IllegalStateException("Not enough operands for operator: " + token.value());
+                    String operator = token.value();
+                    if ("!".equals(operator)) {
+                        stack.push(factorial(stack.pop().intValue()));
+                    } else {
+                        double b = stack.pop(), a = stack.pop();
+                        stack.push(OPERATOR_FUNCTIONS.get(operator).apply(a, b));
                     }
-                    double b = stack.pop();
-                    double a = stack.pop();
-                    stack.push(operatorFunctions.get(token.value()).apply(a, b));
                 }
                 case FUNCTION -> {
-                    if ("logb".equals(token.value())) {
-                        if (stack.size() < 2) {
-                            throw new IllegalStateException("Not enough operands for logb function: " + stack);
-                        }
-                        double number = stack.pop();
-                        double base = stack.pop();
-                        if (number <= 0 || base <= 0) {
-                            throw new IllegalArgumentException("Invalid arguments for logb function: base=" + number + ", number=" + base);
-                        }
-                        stack.push(functionOperations.get(token.value()).apply(number, base));
+                    String function = token.value();
+                    if (COMMA_FUNCTION_OPERATIONS.containsKey(function)) {
+                        double number = stack.pop(), base = stack.pop();
+                        stack.push(COMMA_FUNCTION_OPERATIONS.get(function).apply(base, number));
                     } else {
-                        if (stack.isEmpty()) {
-                            throw new IllegalStateException("Not enough operands for function: " + token.value());
-                        }
-                        double a = stack.pop();
-                        stack.push(functionOperations.get(token.value()).apply(a, 0.0));
+                        stack.push(FUNCTION_OPERATIONS.get(function).apply(stack.pop()));
                     }
                 }
             }
         }
 
-        if (stack.size() != 1) {
-            throw new IllegalStateException("Invalid postfix expression, stack should contain exactly one result.");
-        }
-
+        if (stack.size() != 1) throw new IllegalStateException("Invalid postfix expression.");
         return stack.pop();
     }
 
-    static double logBase(double number, double base) {
-        if (base <= 0 || number <= 0 || base == 1) {
-            return Double.NaN;
+    static double logBase(double base, double number) {
+        return (base <= 0 || number <= 0 || base == 1) ? Double.NaN : Math.log(number) / Math.log(base);
+    }
+
+    private static double gcd(double a, double b) {
+        while (b != 0) {
+            double temp = b;
+            b = a % b;
+            a = temp;
         }
-        return Math.log(number) / Math.log(base);
+        return a;
+    }
+
+    private static double lcm(double a, double b) {
+        return (a * b) / gcd(a, b);
+    }
+
+    private static double factorial(int n) {
+        if (n < 0) throw new IllegalArgumentException("Factorial is only defined for non-negative integers.");
+        double result = 1;
+        for (int i = 2; i <= n; i++) result *= i;
+        return result;
     }
 }

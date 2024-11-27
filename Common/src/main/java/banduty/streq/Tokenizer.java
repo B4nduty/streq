@@ -15,7 +15,7 @@ final class Tokenizer {
     private Tokenizer() {}
 
     private static final Set<String> FUNCTIONS = Set.of(
-            "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sqrt", "log", "ln", "logb"
+            "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sqrt", "log", "ln", "logb", "gcd", "lcm", "abs"
     );
 
     static List<Token> tokenize(String expression) {
@@ -57,18 +57,12 @@ final class Tokenizer {
                 } else if (currentChar == '-' && expectingNegativeNumber) {
                     buffer.append(currentChar);
                     expectingNegativeNumber = false;
-                } else if ("+-*/".indexOf(currentChar) != -1) {
+                } else if ("+-*/^!".indexOf(currentChar) != -1) {
                     tokens.add(new Token(TokenType.OPERATOR, String.valueOf(currentChar)));
                     expectingNegativeNumber = true;
-                } else if (currentChar == '^') {
-                    tokens.add(new Token(TokenType.OPERATOR, "^"));
-                    expectingNegativeNumber = true;
-                } else if (currentChar == '(') {
+                } else if (currentChar == '(' || currentChar == ')') {
                     tokens.add(new Token(TokenType.PARENTHESIS, String.valueOf(currentChar)));
-                    expectingNegativeNumber = true;
-                } else if (currentChar == ')') {
-                    tokens.add(new Token(TokenType.PARENTHESIS, String.valueOf(currentChar)));
-                    expectingNegativeNumber = false;
+                    expectingNegativeNumber = (currentChar == '(');
                 } else if (currentChar == ',') {
                     tokens.add(new Token(TokenType.COMMA, ","));
                     expectingNegativeNumber = false;
