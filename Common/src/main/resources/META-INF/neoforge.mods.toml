@@ -6,16 +6,9 @@ logoFile=""
 
 [[mods]]
 modId="streq"
-version="1.0.4"
+version="1.0.5"
 displayName="StrEq"
 displayURL=""
 authors="Banduty"
 description='''String to Equation!'''
 credits=''''''
-
-[[dependencies.streq]]
-modId="minecraft"
-type="required"
-versionRange=">=1.17"
-ordering="NONE"
-side="BOTH"

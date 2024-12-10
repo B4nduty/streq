@@ -7,9 +7,7 @@ public class StrEq {
 	public static final String MOD_ID = "streq";
 
 	public static double evaluate(String expression, Map<String, Double> variables) {
-		List<Tokenizer.Token> tokens = Tokenizer.tokenize(expression);
-		List<Tokenizer.Token> postfix = ExpressionEvaluator.toPostfix(tokens, variables);
-        return ExpressionEvaluator.evaluatePostfix(postfix);
+		return CacheExpression.evaluate(expression, variables);
 	}
 
 	public boolean areEqual(List<String> expressions, List<Map<String, Double>> variables, boolean approximated) {
