@@ -37,7 +37,7 @@ final class Tokenizer {
                 }
 
                 if (Character.isLetter(currentChar)) {
-                    if (!tokens.isEmpty() && tokens.getLast().type == TokenType.NUMBER) {
+                    if (!tokens.isEmpty() && tokens.get(tokens.size() - 1).type() == TokenType.NUMBER) {
                         tokens.add(new Token(TokenType.OPERATOR, "*"));
                     }
                     buffer.append(currentChar);

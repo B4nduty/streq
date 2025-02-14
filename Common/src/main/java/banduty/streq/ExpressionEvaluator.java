@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 final class ExpressionEvaluator {
-
     private ExpressionEvaluator() {}
 
     private static final Map<String, Integer> PRECEDENCE = Map.of(

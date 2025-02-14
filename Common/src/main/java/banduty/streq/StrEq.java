@@ -14,12 +14,11 @@ public class StrEq {
 		if (expressions.size() != variables.size()) {
 			throw new IllegalArgumentException("Each expression must have a corresponding variable map.");
 		}
-
 		if (expressions.isEmpty()) {
 			return true;
 		}
 
-		double firstResult = evaluate(expressions.getFirst(), variables.getFirst());
+		double firstResult = evaluate(expressions.get(0), variables.get(0));
 
 		for (int i = 1; i < expressions.size(); i++) {
 			double currentResult = evaluate(expressions.get(i), variables.get(i));
@@ -35,7 +34,7 @@ public class StrEq {
 		if (approximated) {
 			return Math.abs(firstResult - currentResult) <= 1e-9;
 		} else {
-			return firstResult == currentResult;
+			return Double.compare(firstResult, currentResult) == 0;
 		}
 	}
 
