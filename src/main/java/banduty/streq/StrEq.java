@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 public class StrEq {
-	public static final String MOD_ID = "streq";
-
 	public static double evaluate(String expression, Map<String, Double> variables) {
 		return CacheExpression.evaluate(expression, variables);
 	}

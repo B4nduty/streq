@@ -1,27 +1,19 @@
 {
 	"schemaVersion": 1,
 	"id": "streq",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"name": "StrEq",
 	"description": "String to Equation!",
-	"authors": ["Banduty"],
+	"authors": [
+		"Banduty"
+	],
 	"contact": {
 		"sources": "https://github.com/B4nduty",
 		"issues": "https://discord.gg/vbZ2zTHGNA"
 	},
 	"license": "All Rights Reserved",
 	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"banduty.streq.StrEqFabric"
-		]
-	},
 	"depends": {
-		"fabricloader": ">=0.16.9",
-		"minecraft": ">=1.17",
 		"java": ">=17"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

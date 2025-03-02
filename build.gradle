@@ -1,26 +1,64 @@
 plugins {
-	id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+	id 'java'
+	id 'maven-publish'
 }
 
-subprojects {
-	apply plugin: 'java'
+version = project.mod_version
+group = project.maven_group
 
-	java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+base {
+	archivesName = project.archives_base_name
+}
+
+ext {
+	modid = "${project.mod_id}"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+}
+
+processResources {
+	inputs.property "version", project.version
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}"}
+	}
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
 
 	repositories {
-		mavenCentral()
 	}
+}
 
-	tasks.withType(JavaCompile).configureEach {
-		it.options.encoding = 'UTF-8'
-		it.options.getRelease().set(17)
-	}
-
-	tasks.withType(GenerateModuleMetadata).configureEach {
-		enabled = false
-	}
-
-	tasks.withType(Jar).all {
-		duplicatesStrategy 'include'
+tasks.named('jar') {
+	manifest {
+		attributes(
+				'ModId': modid,
+				'Implementation-Version': version
+		)
 	}
 }
