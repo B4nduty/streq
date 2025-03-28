@@ -1,0 +1,31 @@
+plugins {
+	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+minecraft {
+	mappings channel: 'parchment', version: '2024.04.14-1.20.4'
+
+	runs {
+		client {
+			workingDirectory project.file('run')
+			property 'forge.logging.markers', 'REGISTRIES'
+			property 'forge.logging.console.level', 'debug'
+			mods {
+				streq {
+					source sourceSets.main
+					source project(':common').sourceSets.main
+				}
+			}
+		}
+	}
+}
+
+dependencies {
+	minecraft 'net.minecraftforge:forge:1.20.4-49.2.0'
+	implementation project(':common')
+}
+
+processResources {
+
+}

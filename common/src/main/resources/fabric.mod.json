@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "streq",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"name": "StrEq",
 	"description": "String to Equation!",
 	"authors": [

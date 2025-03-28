@@ -3,62 +3,33 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
-group = project.maven_group
+allprojects {
+	apply plugin: 'java'
 
-base {
-	archivesName = project.archives_base_name
+	version = project.mod_version
+	group = project.maven_group
+
+	repositories {
+		mavenCentral()
+	}
+
+	tasks.withType(JavaCompile).configureEach {
+		options.encoding = 'UTF-8'
+		options.release = 17
+	}
 }
 
-ext {
-	modid = "${project.mod_id}"
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-}
-
-processResources {
-	inputs.property "version", project.version
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+subprojects {
+	if (it.name != 'common') {
+		dependencies {
+			implementation project(':common')
+		}
+	}
 }
 
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
-	}
-}
-
-publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
-
-	repositories {
-	}
-}
-
-tasks.named('jar') {
-	manifest {
-		attributes(
-				'ModId': modid,
-				'Implementation-Version': version
-		)
-	}
 }

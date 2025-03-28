@@ -1,5 +1,12 @@
 pluginManagement {
     repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.neoforged.net/releases' }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+        maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -10,3 +17,8 @@ plugins {
 }
 
 rootProject.name = 'streq'
+
+include 'common'
+include 'forge'
+include 'fabric'
+include 'neoforge'

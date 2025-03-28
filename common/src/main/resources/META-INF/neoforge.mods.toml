@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="[20.4,)"  # NeoForge version range
+license="All rights reserved"
+issueTrackerURL="https://discord.gg/vbZ2zTHGNA"
+logoFile="assets/streq/logo.png"
+
+[[mods]]
+modId="streq"
+version="1.0.8"
+displayName="StrEq"
+authors="Banduty"
+description='''String to Equation!'''
+displayURL=""
+updateJSONURL=""
+
+[[dependencies.streq]]
+modId="neoforge"
+mandatory=true
+versionRange="[20.4.0-beta,)"
+ordering="NONE"
+side="BOTH"
