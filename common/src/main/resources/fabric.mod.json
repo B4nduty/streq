@@ -12,6 +12,11 @@
     "license": "${license}",
     "icon": "assets/modid/${mod_id}.png",
     "environment": "*",
+    "entrypoints": {
+        "main": [
+            "StrEqFabric"
+        ]
+    },
     "depends": {
         "fabric": "*",
         "minecraft": "*",
