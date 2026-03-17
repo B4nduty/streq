@@ -85,7 +85,6 @@ final class ExpressionEvaluator {
                     }
                 }
             }
-            System.out.println("Stack after " + token.value() + ": " + stack);
         }
         if (stack.size() != 1) {
             throw new IllegalArgumentException("Invalid expression: The stack has " +
@@ -174,10 +173,6 @@ final class ExpressionEvaluator {
             if ("(".equals(stack.peek().value())) throw new IllegalArgumentException("Mismatched parentheses");
             output.add(stack.pop());
         }
-
-        System.out.println("DEBUG POSTFIX (RPN): " + output.stream()
-                .map(Tokenizer.Token::value)
-                .collect(java.util.stream.Collectors.joining(" ")));
 
         return output;
     }
