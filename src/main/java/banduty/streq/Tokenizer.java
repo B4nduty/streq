@@ -67,6 +67,12 @@ final class Tokenizer {
             
             // Word Handling (Variables or Functions)
             else if (Character.isLetter(c)) {
+                if (!buffer.isEmpty()) {
+                    tokens.add(new Token(TokenType.NUMBER, buffer.toString()));
+                    buffer.setLength(0);
+                    tokens.add(new Token(TokenType.OPERATOR, "*"));
+                }
+
                 // Logic for Implicit Multiplication: "2x" becomes "2 * x"
                 if (!tokens.isEmpty()) {
                     Token last = tokens.get(tokens.size() - 1);
@@ -95,10 +101,16 @@ final class Tokenizer {
 
                 // Structural Symbol Handling
                 if (c == '(') {
+                    if (!buffer.isEmpty()) {
+                        tokens.add(new Token(TokenType.NUMBER, buffer.toString()));
+                        buffer.setLength(0);
+                        tokens.add(new Token(TokenType.OPERATOR, "*"));
+                    }
+
                     // Logic for Implicit Multiplication: "5(x)" becomes "5 * (x)"
                     if (!tokens.isEmpty()) {
                         Token last = tokens.get(tokens.size() - 1);
-                        if (last.type() == TokenType.NUMBER || last.type() == TokenType.VARIABLE || last.value().equals(")")) {
+                        if (last.type() == TokenType.VARIABLE || (last.type() == TokenType.PARENTHESIS && last.value().equals(")"))) {
                             tokens.add(new Token(TokenType.OPERATOR, "*"));
                         }
                     }

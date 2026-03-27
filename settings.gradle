@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenCentral()
         gradlePluginPortal()
         maven {
             name = 'Forge'
@@ -21,7 +22,3 @@ plugins {
 }
 
 rootProject.name = 'streq-mod'
-include("common")
-include("fabric")
-include("forge")
-include("neoforge")
